@@ -1,0 +1,9 @@
+# Exploratory work is per-person and not shared. The dated-subdir + README
+# convention is what makes it survivable if you DO choose to commit some.
+scratch/
+users/*/scratch/
+
+__pycache__/
+*.pyc
+.DS_Store
+_site/

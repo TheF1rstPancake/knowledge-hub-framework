@@ -1,0 +1,151 @@
+# {{ORG}}
+
+<!-- This file is the heart of the hub. It is symlinked to your agent's user-scope
+     config, so every word here loads in EVERY session in EVERY repo. Two rules:
+     keep it prescriptive and short, and push anything needing a worked example
+     down into a skill. Sections marked TODO are prompts, not prose - a sed cannot
+     write them for you. -->
+
+## RULE 0 — NEVER PUT WORDS IN FRONT OF PEOPLE UNDER {{OWNER}}'S NAME
+
+<!-- TODO: this is the publishing-constraint layer. It goes FIRST, before the
+     mission, because agents weight early emphatic instructions most heavily.
+     See BLUEPRINT.md section 4 for the eight properties that make it work.
+     Below is a starting point - edit the surfaces to match your tools. -->
+
+**{{OWNER}} owns every word that appears on GitHub. You write none of them.**
+
+This is absolute and has no "unless it seems helpful" exception. Do **not**, ever, without
+{{OWNER}} telling you to do that specific thing in that specific moment:
+
+- Post a PR or issue comment
+- Reply to a review thread — not to agree, not to explain, not to say you fixed it
+- Submit a review (approve / request changes / comment)
+- Re-request review, or add reviewers, assignees, or labels
+- Edit a PR title or body after it is opened
+- React to a comment
+- Any `gh` / `gh api` / GraphQL call that puts prose on someone else's screen
+
+**Opening a PR is the one exception**, because it is the deliverable being asked for. Its title
+and body are yours to draft. Everything after that belongs to {{OWNER}}.
+
+### Review feedback: incorporate it, then resolve the thread
+
+1. **Incorporate all of it.** Default to making the change. The bar for skipping a comment is
+   that it is *obviously contradictory* — it conflicts with another instruction, with the
+   codebase's own conventions, or with something you have measured. "I disagree" and "it's only
+   a nit" are not that bar.
+2. **Resolve each thread as you address it.** Only what you actually addressed, and only after
+   the fix is pushed. Verify the fix is in the pushed commit — check the file at the SHA, not
+   your recollection of having edited it.
+3. **Say nothing on the thread.** The diff is the answer. Report what you changed in chat.
+4. **A comment you are skipping stays open.** Say in chat why, and let {{OWNER}} decide.
+
+Read-only `gh` (view, diff, checks, logs, list) is always fine.
+
+## What this repo is
+
+This is the **{{ORG}} hub** — the shared knowledge and config layer for all {{ORG}} work. It
+holds the cross-cutting conventions, the agent skills, the findings system of record, and
+operational scripts. It is **not** the code; the product repos are independent git repos that
+live alongside this one.
+
+This file is installed at your agent's user scope by `scripts/bootstrap-agent.sh`, so its
+conventions load in **every** session regardless of which repo you're working in. `AGENTS.md` is
+a symlink to this file for agents using the portable instruction convention. When you're inside a
+product repo, that repo's own CLAUDE.md loads on top of this one.
+
+**The hub lives at the path in `${{HUB_ENV_VAR}}`.** Always resolve it by that variable — never by
+filesystem guessing, and never by the directory name.
+
+## Mission
+
+<!-- TODO: 3-5 sentences. What does this org build, for whom, and how does it make money?
+     An agent that doesn't know this makes bad judgment calls about what matters. -->
+
+**Current state**: <!-- TODO: what exists vs. what doesn't. This one line prevents more wasted
+work than anything else in the file — it stops the agent wiring up flows that assume systems
+nobody has built yet. -->
+
+## The repos
+
+Each product repo has its own CLAUDE.md with stack-level detail. Defer to it.
+
+<!-- TODO: one line each - name, stack, what it's for. -->
+- **<repo>** — <stack>. <purpose>.
+
+## Reporting learnings
+
+We are in heavy discovery mode. Capture what you learn so it survives the session.
+
+### Durable learnings → `docs/findings/`
+
+When you learn something non-obvious that future-you or another agent would want to know — a
+vendor quirk, a tool that worked unexpectedly well or badly, a dead end worth not revisiting —
+drop a finding in `docs/findings/`. <!-- Once you've written a `{{org}}-finding` skill, name it
+here — that's what makes the agent reach for it unprompted. See .agents/skills/README.md. -->
+
+- Filename: `YYYY-MM-DD-short-slug.md`. The date **is** the staleness signal.
+- One-line summary at the top, then narrative. Light structure; heavy templates die.
+- Don't wait to be asked. If it's worth knowing later, write it down now.
+- **When you cite a finding to a human, give the full absolute path** with `${{HUB_ENV_VAR}}`
+  resolved. The reader is usually in a product-repo checkout where a hub-relative path doesn't
+  exist, so their editor can't open it. This applies to subagent output too.
+
+Staleness is fine. Old findings get superseded, not maintained.
+
+### Exploratory artifacts → `users/<handle>/scratch/`
+
+CSVs, query outputs, ad-hoc scripts, debugging data — anything that isn't source code but
+shouldn't be lost. One dated directory each, with a three-line `README.md` saying what you were
+doing and what's in there. The README is the recovery hook; without it, in six months it's just
+files.
+
+### Tactical progress → the tracker
+
+Findings answer *what did we learn*. They deliberately don't answer *what did we get done*.
+
+<!-- TODO: name your tracker and, critically, name the surfaces that NOTIFY people versus the
+     ones that don't. The hub this came from learned this the hard way: project status updates
+     fire into Slack and interrupt the team, so they are forbidden outright, while issues and
+     descriptions are written directly with no confirmation gate. Get this distinction right
+     and the agent can log freely; get it wrong and it spams your team. -->
+
+Record it as **issues and descriptions**, which notify nobody. Never post a project status
+update. Write those directly — no confirmation gate. This is a deliberate carve-out from RULE 0,
+which governs GitHub only. Always report what you wrote in chat, with URLs.
+
+### Memory vs. findings vs. ops log
+
+- **Findings** (`docs/findings/`) = team knowledge — what we learned. System of record.
+- **Ops log** (tracker issues + descriptions) = progress — what we accomplished. Days of shelf
+  life; a tracker, not a knowledge base.
+- **Memory** (the agent's own per-project memory) = private working context — user preferences,
+  recurring corrections, session-spanning state. Auto-loads for the main agent only, keyed
+  per-repo. Not for collaborative knowledge — that goes in findings.
+
+## Cross-cutting conventions
+
+<!-- TODO: the conventions that apply in EVERY repo. Keep this list short; a convention that
+     needs an example wants to be a skill instead. Real examples from the original:
+       - Docstring code refs use single backticks, not double (double is RST/Sphinx).
+       - A PR is not "ready" until CI is green.
+       - A change needing more than one PR ships as a stack, not loose PRs with a merge order. -->
+
+## Committing to the hub (this repo)
+
+`main` is protected — direct pushes blocked, PR required. No required reviewers or checks, so
+clean PRs auto-merge the moment they're mergeable.
+
+```bash
+git checkout -b {handle}/{short-slug}
+# edits
+git add -A && git commit
+scripts/ship.sh            # pushes, opens PR, enables auto-merge, waits for merge, syncs main
+```
+
+**When to push:** after writing a finding, editing this file, changing a skill (then re-run
+`scripts/bootstrap-agent.sh --agent <client>` to refresh the install), or adding reference data.
+
+**When not to:** mid-session personal plans, anything under `scratch/`, or product-repo changes
+(those go through the product repo's own flow).
